@@ -10,7 +10,7 @@ const config: Config = {
     extend: {},
   },
   plugins: [
-    require('tw-animate-css'),
+   
   ],
 }
 

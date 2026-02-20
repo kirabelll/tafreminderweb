@@ -32,12 +32,12 @@ export default function DriverLicenseForm() {
 
   return (
     <Card className="w-full max-w-md mx-auto p-6">
-      <h2 className="text-2xl font-semibold mb-6 text-center">Driver License Information</h2>
+      <h2 className="text-2xl font-semibold mb-6 text-center">License Reminder Information</h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="licensePlate" className="block text-sm font-medium mb-2">
-            License Plate Number
+            License Reminder
           </label>
           <input
             type="text"

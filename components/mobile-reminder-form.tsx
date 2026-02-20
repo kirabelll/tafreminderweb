@@ -14,6 +14,10 @@ const API_BASE_URL = "https://tafreminderbot-backend-n14i.vercel.app";
 
 // Fallback for development - simple local storage
 const saveToLocalStorage = (reminder: any) => {
+  if (typeof window === 'undefined') {
+    throw new Error('Local storage not available on server');
+  }
+  
   try {
     const existingReminders = JSON.parse(localStorage.getItem('taf-reminders') || '[]');
     const newReminder = {
@@ -47,6 +51,14 @@ export default function MobileReminderForm() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
+  const [minDate, setMinDate] = useState("");
+
+  // Set minimum date on client side only
+  useEffect(() => {
+    if (isClient) {
+      setMinDate(new Date().toISOString().split('T')[0]);
+    }
+  }, [isClient]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -219,7 +231,7 @@ export default function MobileReminderForm() {
                 name="expiredDate"
                 value={formData.expiredDate}
                 onChange={handleInputChange}
-                min={new Date().toISOString().split('T')[0]}
+                min={minDate}
                 required
                 className="h-12"
               />

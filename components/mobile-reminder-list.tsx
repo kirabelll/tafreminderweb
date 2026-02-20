@@ -12,6 +12,8 @@ const API_BASE_URL = "https://tafreminderbot-backend-n14i.vercel.app";
 
 // Local storage helpers
 const getFromLocalStorage = (): ApiReminder[] => {
+  if (typeof window === 'undefined') return [];
+  
   try {
     const stored = localStorage.getItem('taf-reminders');
     return stored ? JSON.parse(stored) : [];
@@ -21,6 +23,8 @@ const getFromLocalStorage = (): ApiReminder[] => {
 };
 
 const deleteFromLocalStorage = (id: string) => {
+  if (typeof window === 'undefined') return false;
+  
   try {
     const reminders = getFromLocalStorage();
     const filtered = reminders.filter(r => r.id !== id);
@@ -149,22 +153,29 @@ export default function MobileReminderList() {
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = date.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Tomorrow";
-    if (diffDays === -1) return "Yesterday";
-    if (diffDays < 0) return `${Math.abs(diffDays)} days ago`;
-    if (diffDays <= 7) return `In ${diffDays} days`;
-    
-    return date.toLocaleDateString();
+    try {
+      const date = new Date(dateString);
+      
+      // Use a more consistent date formatting approach
+      const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      };
+      
+      return date.toLocaleDateString('en-US', options);
+    } catch (error) {
+      return 'Invalid date';
+    }
   };
 
   const isExpired = (dateString: string) => {
-    return new Date(dateString) < new Date();
+    if (!isClient) return false; // Prevent SSR mismatch
+    try {
+      return new Date(dateString) < new Date();
+    } catch (error) {
+      return false;
+    }
   };
 
   const getFilteredReminders = () => {

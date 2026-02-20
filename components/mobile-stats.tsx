@@ -10,6 +10,14 @@ const API_BASE_URL = "https://tafreminderbot-backend-n14i.vercel.app";
 
 // Local storage helper
 const getLocalStats = () => {
+  if (typeof window === 'undefined') {
+    return {
+      totalReminders: 0,
+      expiredReminders: 0,
+      activeReminders: 0
+    };
+  }
+  
   try {
     const reminders = JSON.parse(localStorage.getItem('taf-reminders') || '[]');
     const now = new Date();

@@ -1,66 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
+import { useState } from "react";
 import MobileHeader from "../components/mobile-header";
-
-// Dynamic imports to prevent SSR issues
-const MobileReminderForm = dynamic(() => import("../components/mobile-reminder-form"), {
-  ssr: false,
-  loading: () => (
-    <div className="p-4 max-w-lg mx-auto">
-      <div className="animate-pulse bg-muted rounded-lg h-96"></div>
-    </div>
-  )
-});
-
-const MobileReminderList = dynamic(() => import("../components/mobile-reminder-list"), {
-  ssr: false,
-  loading: () => (
-    <div className="p-4 max-w-lg mx-auto">
-      <div className="animate-pulse space-y-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-muted rounded-lg h-32"></div>
-        ))}
-      </div>
-    </div>
-  )
-});
-
-const MobileStats = dynamic(() => import("../components/mobile-stats"), {
-  ssr: false,
-  loading: () => (
-    <div className="p-4 max-w-lg mx-auto">
-      <div className="animate-pulse bg-muted rounded-lg h-96"></div>
-    </div>
-  )
-});
-
-const TelegramProvider = dynamic(() => import("../components/telegram-mini-app").then(mod => ({ default: mod.TelegramProvider })), {
-  ssr: false
-});
+import MobileReminderForm from "../components/mobile-reminder-form";
+import MobileReminderList from "../components/mobile-reminder-list";
+import MobileStats from "../components/mobile-stats";
+import { TelegramProvider } from "../components/telegram-mini-app";
+import NoSSR from "../components/no-ssr";
 
 export default function Home() {
   const [activeSection, setActiveSection] = useState<'create' | 'list' | 'stats'>('create');
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const handleMenuItemClick = (item: 'create' | 'list' | 'stats') => {
     setActiveSection(item);
   };
 
   const renderActiveSection = () => {
-    if (!isClient) {
-      return (
-        <div className="p-4 max-w-lg mx-auto">
-          <div className="animate-pulse bg-muted rounded-lg h-96"></div>
-        </div>
-      );
-    }
-
     switch (activeSection) {
       case 'create':
         return <MobileReminderForm />;
@@ -73,8 +28,8 @@ export default function Home() {
     }
   };
 
-  if (!isClient) {
-    return (
+  return (
+    <NoSSR fallback={
       <div className="min-h-screen bg-gray-50">
         <MobileHeader 
           onMenuItemClick={handleMenuItemClick}
@@ -86,21 +41,19 @@ export default function Home() {
           </div>
         </main>
       </div>
-    );
-  }
-
-  return (
-    <TelegramProvider>
-      <div className="min-h-screen bg-gray-50">
-        <MobileHeader 
-          onMenuItemClick={handleMenuItemClick}
-          activeSection={activeSection}
-        />
-        
-        <main className="pb-6">
-          {renderActiveSection()}
-        </main>
-      </div>
-    </TelegramProvider>
+    }>
+      <TelegramProvider>
+        <div className="min-h-screen bg-gray-50">
+          <MobileHeader 
+            onMenuItemClick={handleMenuItemClick}
+            activeSection={activeSection}
+          />
+          
+          <main className="pb-6">
+            {renderActiveSection()}
+          </main>
+        </div>
+      </TelegramProvider>
+    </NoSSR>
   );
 }
